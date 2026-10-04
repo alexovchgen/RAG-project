@@ -1,0 +1,40 @@
+{
+  "snapshot": "baseline-2026-10-04",
+  "note": "Замороженный прогон. Сравнивать следующие изменения пайплайна с этими цифрами, не с авторским llama-прогоном как с «своим».",
+  "corpus": {
+    "n_questions": 10,
+    "modules": ["linear_model", "tree", "model_evaluation", "about.md"]
+  },
+  "settings": {
+    "llm_model": "qwen/qwen3.7-flash",
+    "llm_base_url": "https://api.vsellm.ru/v1",
+    "llm_temperature": 0.0,
+    "embedding_model": "intfloat/multilingual-e5-small",
+    "embedding_dim": 384,
+    "normalize_embeddings": true,
+    "collection_name": "sklearn_docs",
+    "top_k": 4
+  },
+  "metrics": {
+    "retriever": {
+      "recall_at_4": 1.0,
+      "hits": 10
+    },
+    "generation": {
+      "faithfulness": 0.8833333333333334,
+      "answer_relevancy": 0.9429396275063278
+    }
+  },
+  "course_thresholds": {
+    "recall_at_4": 0.8,
+    "faithfulness": 0.75,
+    "answer_relevancy": 0.75
+  },
+  "author_run": {
+    "n_questions": 10,
+    "llm_model": "llama-3.3-70b",
+    "recall_at_4": 1.0,
+    "faithfulness": 0.92,
+    "answer_relevancy": 0.83
+  }
+}

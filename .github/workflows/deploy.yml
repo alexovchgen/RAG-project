@@ -31,16 +31,21 @@ jobs:
             # тянем образ, который CI уже собрал и проверил тестами
             docker pull ${{ env.IMAGE }}:latest
 
+            # сеть должна совпадать с ручным контейнером qdrant на VPS
+            docker network create rag-net 2>/dev/null || true
+
             # сносим старый контейнер (прежнее имя task-api и текущее rag-servise)
             docker rm -f task-api rag-servise 2>/dev/null || true
 
             # поднимаем новый в фоне
             docker run -d \
               --name rag-servise \
+              --network rag-net \
               --restart unless-stopped \
               -p 127.0.0.1:8000:8000 \
               -e LOG_LEVEL=INFO \
               -e LLM_API_KEY="${{ secrets.LLM_API_KEY }}" \
+              -e QDRANT_URL=http://qdrant:6333 \
               ${{ env.IMAGE }}:latest
 
             # убеждаемся, что контейнер действительно жив, и только тогда чистим диск

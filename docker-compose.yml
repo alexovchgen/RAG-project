@@ -1,5 +1,10 @@
+networks:
+  rag-net:
+    name: rag-net
+    external: false
+
 services:
-  api:                              # имя сервиса; если бы добавляли БД, тут была бы вторая запись db:
+  app:                              # имя сервиса; если бы добавляли БД, тут была бы вторая запись db:
     build: .                        # собирать из Dockerfile в текущей папке
     image: rag-servise:latest          # имя собранного образа; latest — стандартный тег "самая свежая"
     container_name: rag-servise       # фиксированное имя контейнера, чтобы было удобно адресовать в docker logs/stop
@@ -10,4 +15,21 @@ services:
     environment:                    # переменные окружения для приложения внутри контейнера
       LOG_LEVEL: ${LOG_LEVEL:-INFO}   # значение из окружения хоста, по умолчанию INFO
       DEBUG: ${DEBUG:-false}
+      # перебивает .env: внутри сети имя сервиса, не localhost контейнера app
+      QDRANT_URL: http://qdrant:6333
     restart: unless-stopped         # если контейнер упал — Docker сам перезапустит (но не если вы остановили его руками)
+    networks:
+      - rag-net
+    depends_on:
+      - qdrant
+
+  qdrant:
+    image: qdrant/qdrant:v1.12.0
+    container_name: qdrant
+    ports:
+      - "127.0.0.1:6333:6333"
+    volumes:
+      - ./qdrant_data:/qdrant/storage
+    networks:
+      - rag-net
+    restart: unless-stopped
