@@ -23,21 +23,16 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command_timeout: 15m
           script: |
-            # команды ниже выполняются НА сервере
-            # логинимся в реестр, чтобы стянуть приватный образ
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            # тянем образ, который CI уже собрал и проверил тестами
             docker pull ${{ env.IMAGE }}:latest
 
-            # сеть должна совпадать с ручным контейнером qdrant на VPS
             docker network create rag-net 2>/dev/null || true
 
-            # сносим старый контейнер (прежнее имя task-api и текущее rag-servise)
             docker rm -f task-api rag-servise 2>/dev/null || true
 
-            # поднимаем новый в фоне
             docker run -d \
               --name rag-servise \
               --network rag-net \
@@ -48,14 +43,22 @@ jobs:
               -e QDRANT_URL=http://qdrant:6333 \
               ${{ env.IMAGE }}:latest
 
-            # убеждаемся, что контейнер действительно жив, и только тогда чистим диск
-            sleep 5
-            if [ -n "$(docker ps -q -f name=rag-servise -f status=running)" ]; then
-              docker image prune -f
-            else
-              echo "Контейнер не поднялся"
-              docker logs --tail 50 rag-servise
+            # lifespan грузит e5: контейнер running ≠ /health готов
+            ok=0
+            for i in $(seq 1 36); do
+              if curl -sf http://127.0.0.1:8000/health >/dev/null; then
+                ok=1
+                break
+              fi
+              sleep 5
+            done
+            if [ "$ok" != 1 ]; then
+              echo "Сервис не ответил на /health"
+              docker ps -a --filter name=rag-servise
+              docker logs --tail 80 rag-servise
+              docker logout ghcr.io
               exit 1
             fi
 
+            docker image prune -f
             docker logout ghcr.io
