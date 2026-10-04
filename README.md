@@ -1,14 +1,19 @@
-# task-api
+# scikit-learn docs RAG assistant
 
-RAG сервис. Docker + автодеплоцй.
+AI-ассистент по официальной документации scikit-learn. Задаёте вопрос
+на естественном языке — получаете ответ с цитатами из документации.
 
-## Локальный запуск
 
-    conda create -y -n task-api python=3.11
-    conda activate task-api
-    pip install -r requirements.txt
-    uvicorn app.main:app --reload
+## Архитектура
 
+\`\`\`mermaid
+flowchart LR
+    USER[Пользователь] --> NGINX[Nginx HTTPS]
+    NGINX --> APP[FastAPI + Gradio streaming]
+    APP --> EMB[multilingual-e5-small embedder]
+    APP --> Q[(Qdrant)]
+    APP --> LLM[OpenRouter -> llama-3.3-70b-instruct]
+\`\`\`
 
 ## Живой сервис
 
@@ -51,6 +56,10 @@ docker compose run --rm --no-deps app sh -c \
 
 ## Результаты оценки (свой прогон, 2026-10-04)
 
+Замеры на реальной системе (10 вопросов golden dataset,
+3 sklearn-модуля + about.md → 267 чанков, llama-3.3-70b-instruct,
+`notebooks/rag_eval.ipynb`):
+
 Снимок настроек и цифр: `notebooks/rag_metrics.json`.
 
 - 10 golden-вопросов (linear_model, tree, model_evaluation, about.md)
@@ -65,3 +74,22 @@ docker compose run --rm --no-deps app sh -c \
 | Response Relevancy | 0.94 |
 
 Ориентир курса: Recall@4 ≥ 0.80, Faithfulness ≥ 0.75, Response Relevancy ≥ 0.75. Авторский прогон (llama-3.3-70b): 1.00 / 0.92 / 0.83. Дальше сравнивать изменения с этой таблицей.
+
+## Локальный запуск
+
+\`\`\`bash
+docker compose up
+python -m app.scripts.load_corpus
+python -m app.scripts.index_corpus
+\`\`\`
+
+Откройте http://localhost:8000
+
+## Для резюме
+
+> RAG-сервис над документацией scikit-learn на FastAPI + LangChain
+> LCEL + Qdrant + multilingual-e5-small. Streaming-чат в Gradio
+> (TTFT < 1s через chain.stream), оценка качества через RAGAS на
+> golden dataset (Recall@4 1.00, Faithfulness 0.92). LLM-провайдер
+> абстрагирован через OpenAI-совместимый endpoint — меняется одной
+> правкой `app/config.py`.
