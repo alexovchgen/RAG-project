@@ -189,7 +189,7 @@ with gr.Blocks(
 ) as demo:
     gr.Markdown(
         "# 📖 scikit-learn docs RAG assistant\n"
-        "_Спрашивай про Linear models, Decision trees, Metrics — на русском или английском._"
+        "_Linear models, trees, metrics, ensembles, CV, preprocessing, pipelines, grid search — RU/EN._"
     )
     with gr.Row():
         with gr.Column(scale=3):

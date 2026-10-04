@@ -15,12 +15,18 @@ from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
-# Три самых «спрашиваемых» раздела Classic ML.
-# Расширение списка — опциональное домашнее задание в конце недели.
+# Разделы Classic ML в корпусе (sklearn User Guide).
 SEED_URLS = [
     "https://scikit-learn.org/stable/modules/linear_model.html",
     "https://scikit-learn.org/stable/modules/tree.html",
     "https://scikit-learn.org/stable/modules/model_evaluation.html",
+    "https://scikit-learn.org/stable/modules/ensemble.html",
+    "https://scikit-learn.org/stable/modules/cross_validation.html",
+    "https://scikit-learn.org/stable/modules/preprocessing.html",
+    "https://scikit-learn.org/stable/modules/compose.html",
+    "https://scikit-learn.org/stable/modules/grid_search.html",
+    "https://scikit-learn.org/stable/modules/impute.html",
+    "https://scikit-learn.org/stable/modules/feature_selection.html",
 ]
 
 _DATA_DIR = Path(__file__).resolve().parent.parent.parent / "data"
