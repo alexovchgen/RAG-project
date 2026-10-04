@@ -16,7 +16,7 @@ from qdrant_client.models import Distance, VectorParams
 
 from app.core.config import resolve_qdrant_url, settings
 
-CHUNKS_PATH = Path("data/corpus_chunks.jsonl")
+CHUNKS_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "corpus_chunks.jsonl"
 
 
 def load_chunks(path: Path) -> list[Document]:

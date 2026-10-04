@@ -23,8 +23,9 @@ SEED_URLS = [
     "https://scikit-learn.org/stable/modules/model_evaluation.html",
 ]
 
-LOCAL_DIR = Path("data/local")
-OUTPUT_PATH = Path("data/corpus_chunks.jsonl")
+_DATA_DIR = Path(__file__).resolve().parent.parent.parent / "data"
+LOCAL_DIR = _DATA_DIR / "local"
+OUTPUT_PATH = _DATA_DIR / "corpus_chunks.jsonl"
 CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 200
 

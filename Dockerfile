@@ -9,8 +9,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Копируем папку app/ внутрь контейнера в /app/app
 COPY app ./app
+COPY data/local ./data/local
 
 # Не буферизовать stdout — иначе логи могут "застрять" и не попасть в docker logs
 ENV PYTHONUNBUFFERED=1

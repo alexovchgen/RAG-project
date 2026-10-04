@@ -6,7 +6,7 @@ networks:
 services:
   app:                              # имя сервиса; если бы добавляли БД, тут была бы вторая запись db:
     build: .                        # собирать из Dockerfile в текущей папке
-    image: rag-servise:latest          # имя собранного образа; latest — стандартный тег "самая свежая"
+    image: ${RAG_IMAGE:-rag-servise:latest}
     container_name: rag-servise       # фиксированное имя контейнера, чтобы было удобно адресовать в docker logs/stop
     env_file: 
       - .env
@@ -17,6 +17,10 @@ services:
       DEBUG: ${DEBUG:-false}
       # перебивает .env: внутри сети имя сервиса, не localhost контейнера app
       QDRANT_URL: http://qdrant:6333
+    volumes:
+      # общий диск-кеш e5: индексер и app не держат две загрузки в RAM одновременно,
+      # но второй старт не качает модель заново
+      - hf-cache:/root/.cache/huggingface
     restart: unless-stopped         # если контейнер упал — Docker сам перезапустит (но не если вы остановили его руками)
     networks:
       - rag-net
@@ -33,3 +37,6 @@ services:
     networks:
       - rag-net
     restart: unless-stopped
+
+volumes:
+  hf-cache:
